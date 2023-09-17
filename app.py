@@ -22,7 +22,4 @@ def on_startup():
 
 @app.get("/admin")
 def index(user = Depends(users.manager)):
-    if not user:
-        return {"foo" : "Bar"}
-
-    return "Hehe Prank ho gaya apke sath"
+    return "comming soon, stay tuned"
