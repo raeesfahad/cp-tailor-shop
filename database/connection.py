@@ -1,18 +1,16 @@
-from sqlmodel import create_engine,SQLModel
-from database import tables
+from sqlmodel import create_engine,SQLModel,Session
+from database import models
 
 
-class SQLite:
+connected : bool = None
+url = f"sqlite:///db_file?check_same_thread=False"
+engine = create_engine(url)
 
-  
-  def __init__(self):
-       
-       self.engine = None
-       self.connected = False
-  
-  def connect(self):
-      
-     url = f"sqlite:///db_file"
-     self.engine = create_engine(url)
-     SQLModel.metadata.create_all(self.engine)
-     self.connected = True
+
+def create_database_and_models():
+     SQLModel.metadata.create_all(engine)
+
+
+def get_session():
+    with Session(engine) as session:
+        yield session

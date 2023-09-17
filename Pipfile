@@ -7,6 +7,8 @@ name = "pypi"
 fastapi = "*"
 sqlmodel = "*"
 uvicorn = "*"
+fastapi-login = "*"
+python-multipart = "*"
 
 [dev-packages]
 
