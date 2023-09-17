@@ -3,7 +3,7 @@ from database import models
 
 
 connected : bool = None
-url = f"sqlite:///db_file?check_same_thread=False"
+url = f"sqlite:///db.sqlite3?check_same_thread=False"
 engine = create_engine(url)
 
 
