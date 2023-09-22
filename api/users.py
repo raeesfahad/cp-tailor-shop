@@ -1,3 +1,4 @@
+from fastapi.responses import JSONResponse
 from fastapi_login import LoginManager
 from fastapi import APIRouter, HTTPException, Depends
 from database.models import *
@@ -14,10 +15,8 @@ router = APIRouter(
 
 
 
-
-
 SECRET = "d239259f330c25e9b433579cdaf05469391d826faf4c01f7"
-manager = LoginManager(SECRET, "/login")
+manager = LoginManager(SECRET, "/api/auth/login")
 
 
 @manager.user_loader()
@@ -29,20 +28,19 @@ def query_user(id : str):
 
 @router.post("/login")
 def Login(data : OAuth2PasswordRequestForm = Depends()):
-    email = data.username
-    password = data.password
+   
 
-    user = query_user(email)
+    user = query_user(data.username)
     if not user:
-        raise "this with email"
+        raise "user not found"
     
-    elif password != user.password:
-        raise "this with pASSWORD"
+    elif data.password != user.password:
+        raise "user not found"
 
     access_token = manager.create_access_token(
-        data={'sub': email}
+        data={'sub': user.email}
     )
-    return {'access_token': access_token}
+    return JSONResponse(content={"access_token" : access_token}, status_code=200)
 
 
 
@@ -55,7 +53,9 @@ async def create_user(*, user : UserCreate,  session : Session = Depends(get_ses
     session.refresh(db_user)
     return db_user
 
+
+
 @router.get('/user/current', response_model=UserRead)
-async def getUser(email : str):
-    user = query_user(email)
+async def getUser(currentUser : User = Depends(manager)):
+    user = query_user(currentUser.email)
     return user
