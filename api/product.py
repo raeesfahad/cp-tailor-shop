@@ -60,3 +60,7 @@ async def delete_order(*, id: int, session : Session = Depends(get_session)):
     session.delete(product)
     session.commit()
     return {"deleted": product.product_type}
+
+
+
+     

@@ -9,7 +9,7 @@ from database.connection import engine
 
 
 router = APIRouter(
-    prefix="/api/user",
+    prefix="/api/auth",
     tags=["users"])
 
 
@@ -17,13 +17,13 @@ router = APIRouter(
 
 
 SECRET = "d239259f330c25e9b433579cdaf05469391d826faf4c01f7"
-manager = LoginManager(SECRET, "/login", use_cookie = True)
+manager = LoginManager(SECRET, "/login")
 
 
 @manager.user_loader()
-def query_loader(id : int):
+def query_user(id : str):
     with Session(engine) as session:
-        user = session.exec(select(User).where(User.id == id))
+        user = session.exec(select(User).where(User.email == id)).first()
         return user
 
 
@@ -32,15 +32,14 @@ def Login(data : OAuth2PasswordRequestForm = Depends()):
     email = data.username
     password = data.password
 
-    with Session(engine) as session:
-        query = session.exec(select(User).where(User.email == email))
-        user = query.first()
-        if not user:
-            raise InvalidCredentialsException
-        elif password != user.password:
-            raise InvalidCredentialsException
+    user = query_user(email)
+    if not user:
+        raise "this with email"
+    
+    elif password != user.password:
+        raise "this with pASSWORD"
 
-        access_token = manager.create_access_token(
+    access_token = manager.create_access_token(
         data={'sub': email}
     )
     return {'access_token': access_token}
@@ -48,7 +47,7 @@ def Login(data : OAuth2PasswordRequestForm = Depends()):
 
 
 
-@router.post( '/add',  response_model=UserRead)
+@router.post( '/create/user',  response_model=UserRead)
 async def create_user(*, user : UserCreate,  session : Session = Depends(get_session)):
     db_user = User.from_orm(user)
     session.add(db_user)
@@ -56,3 +55,7 @@ async def create_user(*, user : UserCreate,  session : Session = Depends(get_ses
     session.refresh(db_user)
     return db_user
 
+@router.get('/user/current', response_model=UserRead)
+async def getUser(email : str):
+    user = query_user(email)
+    return user

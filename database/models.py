@@ -83,17 +83,16 @@ class UserBase(SQLModel):
    first_name : str
    last_name : str
    email : str
-   joined : datetime = datetime.now()
+  
 
 class User(UserBase, table=True):
    id: Optional[int] = Field(default=None, primary_key=True)
    password : str
-   password_again : str
+   joined : datetime = datetime.now()
 
 
 class UserCreate(UserBase):
    password : str
-   password_again : str
 
 class UserRead(UserBase):
    id : int
